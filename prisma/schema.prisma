@@ -16,8 +16,7 @@ model Class {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   course      String
-  Users       User[]
-  Activities  Activity[]
+  activities  Activity[]
   UserOnClass UserOnClass[]
 
   @@map("classes")
@@ -33,44 +32,43 @@ model UserOnClass {
 }
 
 model User {
-  id            Int             @id @default(autoincrement())
-  email         String          @unique
-  password      String
-  name          String
-  situation     Situation       @default(ACTIVE)
-  description   String?
-  sex           String?
-  role          Role            @default(STUDENT)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  classes       Class[]
-  UserOnClass   UserOnClass[]
-  student       Student?
-  Advisor       Advisor?
-  Teacher       Teacher?
-  KnowledgeArea KnowledgeArea[]
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  password       String
+  name           String
+  situation      Situation       @default(ACTIVE)
+  description    String?
+  sex            String?
+  role           Role            @default(STUDENT)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  UserOnClass    UserOnClass[]
+  student        Student?
+  Advisor        Advisor?
+  Teacher        Teacher?
+  knowledgeAreas KnowledgeArea[]
 
   @@map("users")
 }
 
 model Student {
-  id        Int     @id @default(autoincrement())
-  code      String  @unique
-  user      User    @relation(fields: [userId], references: [id])
-  userId    Int     @unique
-  advisor   Advisor? @relation(fields: [advisorId], references: [id])
-  advisorId Int?
+  id                Int                 @id @default(autoincrement())
+  code              String              @unique
+  user              User                @relation(fields: [userId], references: [id])
+  userId            Int                 @unique
+  advisor           Advisor?            @relation(fields: [advisorId], references: [id])
+  advisorId         Int?
+  ActivityOnStudent ActivityOnStudent[]
 
   @@map("students")
 }
 
 model Advisor {
   id         Int       @id @default(autoincrement())
-  name       String
   lattesLink String?
   user       User      @relation(fields: [userId], references: [id])
   userId     Int       @unique
-  Student    Student[]
+  students   Student[]
 
   @@map("advisors")
 }
@@ -84,16 +82,16 @@ model Teacher {
 }
 
 model Activity {
-  id          Int       @id @default(autoincrement())
-  name        String
-  title       String
-  description String
-  deadline    DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  class       Class     @relation(fields: [classId], references: [id])
-  classId     Int
-  Task        Task?
+  id                Int                 @id @default(autoincrement())
+  name              String
+  title             String
+  description       String
+  deadline          DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  class             Class               @relation(fields: [classId], references: [id])
+  classId           Int                 @unique
+  ActivityOnStudent ActivityOnStudent[]
 
   @@map("activities")
 }
@@ -110,18 +108,14 @@ model KnowledgeArea {
   @@map("knowledge_areas")
 }
 
-model Task {
-  id          Int       @id @default(autoincrement())
-  name        String
-  description String
-  deadline    DateTime?
-  completed   Completed @default(NO)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  activity    Activity  @relation(fields: [activityId], references: [id])
-  activityId  Int       @unique
+model ActivityOnStudent {
+  activityId Int
+  studentId  Int
+  activity   Activity  @relation(fields: [activityId], references: [id])
+  student    Student   @relation(fields: [studentId], references: [id])
+  completed  Completed @default(NO)
 
-  @@map("tasks")
+  @@id([activityId, studentId])
 }
 
 enum Role {
