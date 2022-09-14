@@ -1,0 +1,18 @@
+{
+  "name": "tcc-match",
+  "version": "1.0.0",
+  "description": "backend do projeto de tcc",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/server.js"
+  },
+  "author": "Kelsiane Lima",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^4.3.1",
+    "express": "^4.18.1",
+    "nodemon": "^2.0.19",
+    "prisma": "^4.3.1"
+  }
+}
