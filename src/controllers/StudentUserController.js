@@ -2,6 +2,9 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const STUDENT = "STUDENT";
+const ACTIVE = "ACTIVE";
+
 export default {
   async listAllStudents(req, res) {
     try {
@@ -13,35 +16,36 @@ export default {
   },
   async createStudent(req, res) {
     try {
-      const { name, email, password, description, sex, code, classId } = req.body;
+      const { name, email, password, description, sex, code, classId } =
+        req.body;
       const newUser = await prisma.user.create({
         data: {
           name,
           email,
           password,
-          situation: "ACTIVE",
-          role: "STUDENT",
+          situation: ACTIVE,
+          role: STUDENT,
           description,
           sex,
-          updatedAt: new Date(),      
-        }
+          updatedAt: new Date(),
+        },
       });
-       await prisma.userOnClass.create({
-        data:{
-            classId,
-            userId: newUser.id
-        }
-      })
+      await prisma.userOnClass.create({
+        data: {
+          classId,
+          userId: newUser.id,
+        },
+      });
 
       const newStudent = await prisma.student.create({
-        data:{
-            code,
-            userId: newUser.id
-        }
-      })
+        data: {
+          code,
+          userId: newUser.id,
+        },
+      });
       return res.json(newStudent);
     } catch (error) {
       res.json(error.message);
     }
-  }
+  },
 };
