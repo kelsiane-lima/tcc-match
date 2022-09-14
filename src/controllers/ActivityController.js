@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import StudentUserController from "./StudentUserController";
+import StudentController from "./StudentController.js";
 const prisma = new PrismaClient();
 
 export default {
@@ -24,7 +24,7 @@ export default {
           updatedAt: new Date(),
         },
       });
-      await StudentUserController.listAllStudents.forEach((element) => {
+      await StudentController.listAllStudents.forEach((element) => {
          prisma.activityOnStudent.create({
           data: {
             studentId: element.id,
