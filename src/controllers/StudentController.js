@@ -30,6 +30,13 @@ export default {
           updatedAt: new Date(),
         },
       });
+
+      const activities = await prisma.activity.findMany({
+        where: {
+          classId: classId,
+        },
+      });
+
       await prisma.userOnClass.create({
         data: {
           classId,
@@ -43,6 +50,14 @@ export default {
           userId: newUser.id,
         },
       });
+      await prisma.activityOnStudent.createMany({
+        data: activities.map((activity) => ({
+          studentId: newStudent.id,
+          activityId: activity.id,
+          completed: false,
+        })),
+      });
+
       return res.json(newStudent);
     } catch (error) {
       res.json(error.message);

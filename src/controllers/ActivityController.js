@@ -24,16 +24,19 @@ export default {
           updatedAt: new Date(),
         },
       });
-      await StudentController.listAllStudents.forEach((element) => {
-         prisma.activityOnStudent.create({
+
+      const students = await prisma.student.findMany({});
+
+      Object.values(students).forEach(async (element) => {
+        await prisma.activityOnStudent.create({
           data: {
             studentId: element.id,
             activityId: newActivity.id,
-            completed: "NO",
+            completed: false,
           },
         });
       });
-      return res.json(newActivity);
+      return res.json(students);
     } catch (error) {
       res.json(error.message);
     }
