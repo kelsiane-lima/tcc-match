@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import StudentController from "./StudentController.js";
+
 const prisma = new PrismaClient();
 
 export default {
@@ -26,16 +26,14 @@ export default {
       });
 
       const students = await prisma.student.findMany({});
-
-      Object.values(students).forEach(async (element) => {
-        await prisma.activityOnStudent.create({
-          data: {
-            studentId: element.id,
-            activityId: newActivity.id,
-            completed: false,
-          },
-        });
+      await prisma.activityOnStudent.createMany({
+        data: students.map((student) => ({
+          studentId: student.id,
+          activityId: newActivity.id,
+          completed: false,
+        })),
       });
+
       return res.json(students);
     } catch (error) {
       res.json(error.message);
