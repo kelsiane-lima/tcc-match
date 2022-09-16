@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -9,11 +10,65 @@ export default {
   async listAllStudents(req, res) {
     try {
       const students = await prisma.student.findMany();
-      return res.json(students);
+      const studentList = [];
+
+      for (let student of students) {
+        const user = await prisma.user.findUnique({
+          where: { id: student.userId },
+        });
+        const studentData = {
+          id: student.id,
+          code: student.code,
+          name: user.name,
+          email: user.email,
+          situation: user.situation,
+          sex: user.sex,
+          createAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          userId: student.userId,
+        };
+        studentList.push(studentData);
+      }
+
+      return res.json(studentList);
     } catch (error) {
       return res.json({ error });
     }
   },
+
+  async listUserStudent(req, res) {
+    try {
+      const { studentId } = req.params;
+      const student = await prisma.student.findUnique({
+        where: {
+          id: parseInt(studentId),
+        },
+      });
+
+      const userStudent = await prisma.user.findUnique({
+        where: {
+          id: parseInt(student.userId),
+        },
+      });
+
+      const userStudentInfo = {
+        id: student.id,
+        name: userStudent.name,
+        email: userStudent.email,
+        situation: userStudent.situation,
+        sex: userStudent.sex,
+        code: student.code,
+        createAt: userStudent.createdAt,
+        updatedAt: userStudent.updatedAt,
+        userId: student.userId,
+      };
+
+      return res.json(userStudentInfo);
+    } catch (error) {
+      return res.json({ error });
+    }
+  },
+
   async createStudent(req, res) {
     try {
       const { name, email, password, description, sex, code, classId } =
@@ -22,7 +77,7 @@ export default {
         data: {
           name,
           email,
-          password,
+          password: await bcrypt.hash(password, 8),
           situation: ACTIVE,
           role: STUDENT,
           description,

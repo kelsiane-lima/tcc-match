@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -21,7 +22,7 @@ export default {
         data: {
           name,
           email,
-          password,
+          password: await bcrypt.hash(password, 8),
           situation: ACTIVE,
           role: TEACHER,
           description,

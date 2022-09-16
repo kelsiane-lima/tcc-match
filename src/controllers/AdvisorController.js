@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-
+import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 const ACTIVE = "ACTIVE";
@@ -14,6 +14,38 @@ export default {
       return res.json({ error });
     }
   },
+  async listUserAdvisor(req, res) {
+    try {
+      const { advisorId } = req.params;
+      const advisor = await prisma.advisor.findUnique({
+        where: {
+          id: parseInt(advisorId),
+        },
+      });
+    
+      const userAdvisor = await prisma.user.findUnique({
+        where: {
+          id: parseInt(advisor.userId),
+        },
+      });
+
+      const userAdvisorInfo =  {
+        id: advisor.id,
+        name: userAdvisor.name,
+        email: userAdvisor.email,
+        situation: userAdvisor.situation,
+        sex: userAdvisor.sex,
+        lattesLink: advisor.lattesLink,
+        createAt: userAdvisor.createdAt,
+        updatedAt: userAdvisor.updatedAt,
+        userId: advisor.userId
+      }
+     
+      return res.json(userAdvisorInfo);
+    } catch (error) {
+      return res.json({ error });
+    }
+  },
   async createAdvisor(req, res) {
     try {
       const { name, email, password, description, sex, classId, lattesLink } = req.body;
@@ -21,7 +53,7 @@ export default {
         data: {
           name,
           email,
-          password,
+          password:await bcrypt.hash(password, 8),
           situation: ACTIVE,
           role: ADVISOR,
           description,

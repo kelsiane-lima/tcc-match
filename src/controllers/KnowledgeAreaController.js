@@ -11,6 +11,19 @@ export default {
             return res.json({ error });
         }
     },
+    async listAllKnowledgeAreasByUserId(req, res) {
+        try {
+            const { userId } = req.params;
+            const knowledgeAreas = await prisma.knowledgeArea.findMany({
+                where: {
+                    userId: parseInt(userId),
+                },
+            });
+            return res.json(knowledgeAreas);
+        } catch (error) {
+            return res.json({ error });
+        }
+    },
     async createKnowledgeArea(req, res) {
         try {
             const { name, description, userId} = req.body;
