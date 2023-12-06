@@ -28,13 +28,18 @@ export default {
           id: parseInt(advisor.userId),
         },
       });
-
+      const userClass = await prisma.userOnClass.findMany({
+        where: {
+          userId: parseInt(student.userId),
+        },
+      });
       const userAdvisorInfo =  {
         id: advisor.id,
         name: userAdvisor.name,
         email: userAdvisor.email,
         situation: userAdvisor.situation,
         sex: userAdvisor.sex,
+        listClass: userClass,
         lattesLink: advisor.lattesLink,
         createAt: userAdvisor.createdAt,
         updatedAt: userAdvisor.updatedAt,
@@ -78,4 +83,24 @@ export default {
       res.json(error.message);
     }
   },
+
+  async studentOnAdvisor(req, res) {
+    try {
+      const { advisorId } = req.params;
+      const { studentId, description } = req.body;
+  
+      const newStudentOnAdvisor = await prisma.studentOnAdvisor.create({
+        data: {
+          advisorId: parseInt(advisorId),
+          studentId: parseInt(studentId),
+          description,
+          evaluated: false,
+        },
+      });
+      return res.json(newStudentOnAdvisor);
+    } catch (error) {
+      return res.json({ error: error.message });
+
+    } 
+  }
 };

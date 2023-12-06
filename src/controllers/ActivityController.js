@@ -100,7 +100,60 @@ export default {
       return res.json({ error });
     
     }
+},
 
+async listActivitiesStudent(req, res) {
+  try {
+    const { studentId } = req.params;
+    let listActivitiesDetails = [];
+
+    const activities = await prisma.activityOnStudent.findMany({
+      where: {
+        studentId: Number(studentId),
+      },
+    });
+    for( let activity of activities){ 
+    const activitiesInfo =  await prisma.activity.findUnique({
+      where: {
+        id: Number(activity.activityId),
+      },
+   
+    });
+    const activityDetails =  {
+      id: activitiesInfo.id,
+      studentId: activity.studentId,
+      name: activitiesInfo.name,
+      title: activitiesInfo.title,
+      description: activitiesInfo.description,
+      deadline: activitiesInfo.deadline,
+      completed: activity.completed,
+      createAt: activitiesInfo.createdAt,
+      updatedAt: activitiesInfo.updatedAt
+    }
+    listActivitiesDetails.push(activityDetails);
+ 
+  }
+    return res.json(listActivitiesDetails);
+  } catch (error) {
+    return res.json({error: error.message});
+  }
+},
+async completedActivity(req, res) {
+  try {
+    const { activityId, studentId } = req.params;
+    const activity = await prisma.activityOnStudent.updateMany({
+      where: {
+        studentId: Number(studentId),
+        activityId: Number(activityId)
+      },
+      data : {
+        completed: true
+      }
+    });
+    return res.json(activity);
+  } catch (error) {
+    return res.json({ error: error.message });
+  }
 
 }
 }

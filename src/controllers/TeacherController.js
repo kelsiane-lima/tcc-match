@@ -48,4 +48,22 @@ export default {
       res.json(error.message);
     }
   },
+  async listAllAdvisorInClass(req, res) {
+    try {
+      const { classId } = req.params;
+      const advisors = await prisma.teacher.findMany({
+        where: {
+          userOnClass: {
+            some: {
+              classId: Number(classId),
+            },
+          },
+        },
+      });
+      return res.json(advisors);
+    } catch (error) {
+      return res.json({ error });
+    }
+  }
+  
 };

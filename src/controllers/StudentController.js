@@ -21,6 +21,7 @@ export default {
           code: student.code,
           name: user.name,
           email: user.email,
+          description: user.description,
           situation: user.situation,
           sex: user.sex,
           createAt: user.createdAt,
@@ -35,7 +36,49 @@ export default {
       return res.json({ error });
     }
   },
+  async listAllStudentsInOneClass(req, res) {
+    try {
+      const { classId } = req.params;
+      const listStudentsInclass = [];
 
+      const students = await prisma.student.findMany({});
+
+      for( let student of students) {
+        const userStudent = await prisma.user.findUnique({
+          where: {
+            id: parseInt(student.userId),
+          },
+        });
+
+        const userClass = await prisma.userOnClass.findMany({
+          where: {
+            userId: parseInt(student.userId),
+          },
+        });
+        const userStudentInfo = {
+          id: student.id,
+          name: userStudent.name,
+          email: userStudent.email,
+          situation: userStudent.situation,
+          sex: userStudent.sex,
+          listClass: userClass,
+          code: student.code,
+          description: userStudent.description,
+          createAt: userStudent.createdAt,
+          updatedAt: userStudent.updatedAt,
+          userId: student.userId,
+        };
+        for(let user of userClass) {
+          if(user.classId == classId) {
+        listStudentsInclass.push(userStudentInfo);   
+      }
+    }
+  }
+      return res.json(listStudentsInclass);
+    } catch (error) {
+      return res.json({ error });
+    }
+  },
   async listUserStudent(req, res) {
     try {
       const { studentId } = req.params;
@@ -50,6 +93,11 @@ export default {
           id: parseInt(student.userId),
         },
       });
+      const userClass = await prisma.userOnClass.findMany({
+        where: {
+          userId: parseInt(student.userId),
+        },
+      });
 
       const userStudentInfo = {
         id: student.id,
@@ -57,6 +105,7 @@ export default {
         email: userStudent.email,
         situation: userStudent.situation,
         sex: userStudent.sex,
+        listClass: userClass,
         code: student.code,
         createAt: userStudent.createdAt,
         updatedAt: userStudent.updatedAt,
@@ -118,4 +167,5 @@ export default {
       res.json(error.message);
     }
   },
+
 };
